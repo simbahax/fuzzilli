@@ -87,7 +87,7 @@ int cov_initialize(struct cov_context* context)
         return -1;
     }
     ftruncate(fd, SHM_SIZE);
-    context->shmem = mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    context->shmem = (struct shmem_data*)(mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
     close(fd);
 #endif
     return 0;
@@ -121,14 +121,14 @@ void cov_finish_initialization(struct cov_context* context, int should_track_edg
 
     context->should_track_edges = should_track_edges;
 
-    context->virgin_bits = malloc(bitmap_size);
-    context->crash_bits = malloc(bitmap_size);
+    context->virgin_bits = (uint8_t*)(malloc(bitmap_size));
+    context->crash_bits = (uint8_t*)(malloc(bitmap_size));
 
     memset(context->virgin_bits, 0xff, bitmap_size);
     memset(context->crash_bits, 0xff, bitmap_size);
 
     if (should_track_edges) {
-        context->edge_count = malloc(sizeof(uint32_t) * num_edges);
+        context->edge_count = (uint32_t*)(malloc(sizeof(uint32_t) * num_edges));
         memset(context->edge_count, 0, sizeof(uint32_t) * num_edges);
     } else {
         context->edge_count = NULL;
@@ -170,7 +170,7 @@ static uint32_t internal_evaluate(struct cov_context* context, uint8_t* virgin_b
                     clear_edge(virgin_bits, i);
                     new_edges->count += 1;
                     size_t new_num_entries = new_edges->count;
-                    new_edges->edge_indices = realloc(new_edges->edge_indices, new_num_entries * sizeof(uint64_t));
+                    new_edges->edge_indices = (uint32_t*)(realloc(new_edges->edge_indices, new_num_entries * sizeof(uint64_t)));
                     new_edges->edge_indices[new_edges->count - 1] = i;
                 }
             }
