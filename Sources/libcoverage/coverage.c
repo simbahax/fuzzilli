@@ -216,7 +216,7 @@ int cov_evaluate_crash(struct cov_context* context)
 
 int cov_compare_equal(struct cov_context* context, uint32_t* edges, uint32_t num_edges)
 {
-    for (int i = 0; i < num_edges; i++) {
+    for (uint32_t i = 0; i < num_edges; i++) {
         int idx = edges[i];
         if (edge(context->shmem->edges, idx) == 0)
             return 0;
